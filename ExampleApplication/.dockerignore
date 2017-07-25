@@ -1,0 +1,15 @@
+.bundle
+.DS_Store
+.ebextensions
+.elasticbeanstalk
+.env
+.yardoc
+.vagrant
+.travis.yml
+log/*
+tmp
+private
+data
+doc
+
+!log/.keep

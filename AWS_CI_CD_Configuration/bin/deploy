@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -o errexit -o xtrace
+
+bucket=e0-example-continuous-deployment
+
+zip deploy/templates.zip e0-example-continuous-deployment.yaml templates/*
+
+aws s3api head-bucket --bucket "${bucket}" --region "us-east-1" ||
+  aws s3 mb "s3://${bucket}" --region "us-east-1"
+
+aws s3api put-bucket-policy \
+  --bucket "${bucket}" \
+  --policy "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:GetObject\",\"s3:GetObjectVersion\"],\"Resource\":\"arn:aws:s3:::e0-example-continuous-deployment/*\"},{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:ListBucket\",\"s3:GetBucketVersioning\"],\"Resource\":\"arn:aws:s3:::e0-example-continuous-deployment\"}]}" \
+  --region "us-east-1"
+
+aws s3api put-bucket-versioning \
+  --bucket "${bucket}" \
+  --versioning-configuration Status=Enabled \
+  --region "us-east-1"
+
+aws s3 cp deploy/templates.zip "s3://${bucket}" --region "us-east-1"
+
+aws s3 cp e0-example-continuous-deployment.yaml "s3://${bucket}" \
+  --region "us-east-1"
+
+aws s3 cp --recursive templates/ "s3://${bucket}/templates" \
+  --region "us-east-1"

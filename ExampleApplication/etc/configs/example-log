@@ -1,0 +1,10 @@
+/home/app/myapp/log/*.log {
+  su app app
+  daily
+  missingok
+  rotate 7
+  compress
+  delaycompress
+  notifempty
+  copytruncate
+}
